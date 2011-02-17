@@ -1,0 +1,152 @@
+\documentclass[10pt,landscape]{article}
+\usepackage{multicol}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape]{geometry}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphics}
+\usepackage{listings}
+\usepackage{verbatim}
+
+
+% This sets page margins to .5 inch if using letter paper, and to 1cm
+% if using A4 paper. (This probably isn't strictly necessary.)
+% If using another size paper, use default 1cm margins.
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+	{ \geometry{top=.5in,left=.3in,right=.5in,bottom=.5in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+
+% Turn off header and footer
+\pagestyle{empty}
+ 
+
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+% Special commands
+\newcommand{\code}[1]{\texttt{#1}}
+
+\makeatother
+
+% Define BibTeX command
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+
+% -----------------------------------------------------------------------
+
+\begin{document}
+
+\raggedright
+\footnotesize
+\begin{multicols}{3}
+
+
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\begin{center}
+     \Large{\textbf{Codierung CheatSheet}} \\
+\end{center}
+
+\section{Verschl"usselungsverfahren}
+\subsection{Perfekt sicherer Code}
+\textbf{One-Time-pad code} \\
+\begin{itemize}
+    \item Codierungsschl"ussel genau so lang wie der zu kodierende Text.
+    \item Schl"ussel zuf"allig
+    \item Kommis sind nur aufgeflogen, weil sie die Schl"ussel recycelt haben
+\end{itemize}
+\subsection{Was bedeutet Perfekt?}
+$P(m) = P(m|C)$
+
+\subsection{Public-Key}
+Besteht aus "offentlichem und privaten Teil.\\
+Der "offentliche ist wie ein offenes Schloss, der genutzt werden kann, um etwas nur mit dem privaten Schl"ussel zugreifbar zu machen.
+
+\subsubsection{RSA}
+Basiert drauf das die Primzahlfaktorisierung NP-vollst"andig ist.
+\paragraph{Erzeugung RSA-Code} \ \\
+\begin{itemize}
+    \item bestimme p,q die Primzahlen sind und weit genug auseinanderliegen
+    \item dann $n = p*q$ und $\phi(n) = (p-1) (q-1) := \#$der Zahlen, die zu n teilerfremd sind.
+    \item w"ahle "offentlichen Schl"ussel e mit $ggt(\phi(n), e) = 1$
+    \item finde durch EEA(erweiterter Euklidischen algorithmus) ein d sodass $e*d ^= 1 (mod phi(n))$
+    \item mann verschl"usselt dann mit $m^e$ und entschl"usselt mit $(m^e)^d$
+\end{itemize}
+
+\paragraph{Warum klappt codierung/decod.?} \ \\
+$ed= 1(mod phi(n))$
+
+\paragraph{Und wie genau?} \ \\
+$ed = 1 + k * phi(n)$\\
+$m ^(1 + k * phi(n))$\\
+$m * m^(k * phi(n))$\\
+$m * (m^(p-1))^(k* (q-1))$\\
+$m * 1, da Fermatsatz: m^(p-1) = 1 (mod p) -> = 1 (mod p * q)$
+\subsubsection{Wie funktioniert dann El-Gamal?}
+$(p,g, g^a)$ "offentlich, $a$ geheim \\
+jemand w"ahlt $b$ (geheim) und sendet $(g^b, m * g^ab)$ \\
+Empf"anger macht dann $(g^ba)^-1$ und kann so entschl"usseln
+
+\subsection{Warum sind die sicher, wenn $NP!=P$?}
+\begin{itemize}
+    \item RSA weil Primzahlzerlegung NP-vollst"andig
+    \item El-Gamal weil es keinen diskreten Algo gibt
+\end{itemize}
+\subsection{Und wenn $NP=P$...}
+\textbf{Weltuntergang!} \\
+Bei NP kann man raten und dann in poly. berechnen, dauert halt ewig, weil man nur raten kann.\\
+Wenn man jedoch nicht mehr raten muss, sondern z.B. Primfaktoren in poly. berechnen k"onnte, dann w"urde das Kartenhaus zusammenfallen.\\
+Auf $NP!=P$ basiert unsere Sicherheit.
+
+\subsection{Was ist sicherer (RSA oder El Gamal)?}
+El Gamal, da sich der Schl"ussel "andert.
+
+\subsubsection{Hat El Gamal auch Nachteile?}
+\begin{itemize}
+    \item \textbf{Hauptnachteil} ist, dass es sichere Zufallszahlen braucht
+    \item Ausserdem wird der verschl"usselte Text doppelt so gross wie das Original (?)
+\end{itemize}
+
+\subsubsection{Gegen was ist ElGamal immun, das RSA belastet?}
+W"orterbuchangriffe, da sich der Schl"ussel bei RSA nicht "andert,  kann er leichter erraten werden.
+
+\subsubsection{Welche Angriffe gibt es noch?}
+\begin{itemize}
+    \item known plaintext
+    \item known chiffretext
+    \item chosen plaintext
+    \item chosen chiffretext
+    \item man-in-the-middle
+\end{itemize}
+
+\end{multicols}
+\end{document}
